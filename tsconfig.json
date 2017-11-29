@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "jsx": "react",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "noUnusedLocals": true,
+    "outDir": "build",
+    "rootDir": "src",
+    "preserveConstEnums": true,
+    "sourceMap": true,
+    "sourceRoot": "./src",
+    "strict": true, // noImplicitAny, noImplicitThis, alwaysStict, strictNullChecks
+    "target": "es2015"
+  },
+  "exclude": ["build", "node_modules"],
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "parserOptions": {
+    "ecmaFeatures": {
+      "experimentalObjectRestSpread": true,
+      "jsx": true
+    }
+  }
+}
