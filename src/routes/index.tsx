@@ -52,7 +52,7 @@ router.post('/signIn', (req: Request, res: Response) => {
         firebaseApp.database().ref(fbNamePath).set(true);
         firebaseApp.database().ref(fbMatchStatusPath).set({
           username: name,
-          matchStatus: 'no-match',
+          isMatched: false,
         });
       }
       res.json({
