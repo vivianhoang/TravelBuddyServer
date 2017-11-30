@@ -41,14 +41,19 @@ router.post('/signIn', (req: Request, res: Response) => {
     });
     return;
   }
-  const firebaseNamePath = `users/${name}`;
-  firebaseApp.database().ref(firebaseNamePath)
+  const fbNamePath = `users/${name}`;
+  const fbMatchStatusPath = `matchStatus/${name}`;
+  firebaseApp.database().ref(fbNamePath)
     .once('value')
     .then((snapshot: Firebase.database.DataSnapshot) => {
       const user = snapshot.val();
       if (!user) {
-        // User doesn't exist
-        firebaseApp.database().ref(firebaseNamePath).set(true);
+        // User doesn't exist create user, set match status
+        firebaseApp.database().ref(fbNamePath).set(true);
+        firebaseApp.database().ref(fbMatchStatusPath).set({
+          username: name,
+          matchStatus: 'no-match',
+        });
       }
       res.json({
         ok: true,
