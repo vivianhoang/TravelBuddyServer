@@ -3,6 +3,16 @@ import { Request, Response } from 'express';
 var router = express.Router();
 import * as Firebase from 'firebase';
 
+// Initialize Firebase
+const firebaseApp: Firebase.app.App = Firebase.initializeApp({
+  apiKey: "AIzaSyALQA_6xmnfKO9GWq-46arvBOwtVDY0fpg",
+  authDomain: "travelbuddy-e1b62.firebaseapp.com",
+  databaseURL: "https://travelbuddy-e1b62.firebaseio.com",
+  projectId: "travelbuddy-e1b62",
+  storageBucket: "travelbuddy-e1b62.appspot.com",
+  messagingSenderId: "682121885147"
+});
+
 /* GET home page. */
 router.get('/', function(req: Request, res: Response) {
   res.render('index', { title: 'Express' });
@@ -32,13 +42,13 @@ router.post('/signIn', (req: Request, res: Response) => {
     return;
   }
   const firebaseNamePath = `users/${name}`;
-  Firebase.database().ref(firebaseNamePath)
+  firebaseApp.database().ref(firebaseNamePath)
     .once('value')
     .then((snapshot: Firebase.database.DataSnapshot) => {
       const user = snapshot.val();
       if (!user) {
         // User doesn't exist
-        Firebase.database().ref(firebaseNamePath).set(true);
+        firebaseApp.database().ref(firebaseNamePath).set(true);
       }
       res.json({
         ok: true,
