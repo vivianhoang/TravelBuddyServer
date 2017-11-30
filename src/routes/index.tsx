@@ -31,7 +31,7 @@ router.post('/signIn', (req: Request, res: Response) => {
     return;
   }
   res.json({
-    error: 'Missing name field.',
+    error: 'Missing name field for signin.',
   });
 });
 
