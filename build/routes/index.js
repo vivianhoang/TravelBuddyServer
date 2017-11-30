@@ -6,7 +6,7 @@ var router = express.Router();
 router.get('/', function (req, res) {
     res.render('index', { title: 'Express' });
 });
-router.post('/match', (req, res) => {
+router.post('/createOffer', (req, res) => {
     const { name } = req.body;
     if (name) {
         res.json({
@@ -17,6 +17,19 @@ router.post('/match', (req, res) => {
     }
     res.json({
         error: 'Missing name field.',
+    });
+});
+router.post('/signIn', (req, res) => {
+    const { name } = req.body;
+    if (name) {
+        res.json({
+            name,
+            ok: true,
+        });
+        return;
+    }
+    res.json({
+        error: 'Missing name field for signin.',
     });
 });
 module.exports = router;
