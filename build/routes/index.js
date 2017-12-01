@@ -54,9 +54,16 @@ router.post('/findMatch', (req, res) => {
         const fbUserConnectionIdPath = `users/${name}/connectionId`;
         firebaseApp.database().ref(fbUserConnectionIdPath).set(connectionId);
         const fbMatchedUserPath = `users/${matchedUsername}`;
-        firebaseApp.database().ref(fbMatchedUserPath).set({
-            connectionId,
-            username: matchedUsername,
+        firebaseApp.database().ref(fbMatchedUserPath).once('value', (snapshot) => {
+            const user = snapshot.val();
+            if (user.pendingId) {
+                const fbMatchedUserPendingMatchPath = `pendingMatches/${user.pendingId}`;
+                firebaseApp.database().ref(fbMatchedUserPendingMatchPath).set(null);
+            }
+            firebaseApp.database().ref(fbMatchedUserPath).set({
+                connectionId,
+                username: matchedUsername,
+            });
         });
     }
     // Search for pending matches
