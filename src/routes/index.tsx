@@ -18,8 +18,8 @@ router.get('/', function(req: Request, res: Response) {
   res.render('index', { title: 'Express' });
 });
 
-router.post('/createOffer', (req: Request, res: Response) => {
-  const { name } = req.body;
+router.post('/findMatch', (req: Request, res: Response) => {
+  const { name, city } = req.body;
   if (name) {
     res.json({
       name,
@@ -42,7 +42,6 @@ router.post('/signIn', (req: Request, res: Response) => {
     return;
   }
   const fbNamePath = `users/${name}`;
-  const fbMatchStatusPath = `matchStatus/${name}`;
   firebaseApp.database().ref(fbNamePath)
     .once('value')
     .then((snapshot: Firebase.database.DataSnapshot) => {
@@ -50,10 +49,6 @@ router.post('/signIn', (req: Request, res: Response) => {
       if (!user) {
         // User doesn't exist create user, set match status
         firebaseApp.database().ref(fbNamePath).set(true);
-        firebaseApp.database().ref(fbMatchStatusPath).set({
-          username: name,
-          isMatched: false,
-        });
       }
       res.json({
         ok: true,
