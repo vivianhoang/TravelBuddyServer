@@ -27,24 +27,68 @@ router.post('/findMatch', (req: Request, res: Response) => {
     });
     return;
   }
+
+  const fbPendingMatchesPath = `pendingMatches`;
+  const fbConnectionMatchesPath = `connections`;
+
+  function setToPendingMatch() {
+    // No pending matches, put user in pending
+    const pendingId = firebaseApp.database().ref(fbPendingMatchesPath).push().key;
+    const pendingMatchForUserPath = `pendingMatches/${pendingId}`;
+    firebaseApp.database().ref(pendingMatchForUserPath)
+      .set({
+        pendingId,
+        username: name,
+        city,
+      });
+    const fbUserPendingIdPath = `users/${name}/pendingId`;
+    firebaseApp.database().ref(fbUserPendingIdPath).set(pendingId);
+  }
+
+  function setToConnectionMatch(matchedUsername: string) {
+    const connectionId = firebaseApp.database().ref(fbConnectionMatchesPath).push().key;
+    const fbConnectionsByIdPath = `connections/${connectionId}`;
+    firebaseApp.database().ref(fbConnectionsByIdPath)
+      .set({
+        connectionId,
+        members: {
+          [name]: true,
+          [matchedUsername]: true,
+        },
+        city,
+      });
+    const fbUserConnectionIdPath = `users/${name}/connectionId`;
+    firebaseApp.database().ref(fbUserConnectionIdPath).set(connectionId);
+    const fbMatchedUserPath = `users/${matchedUsername}`;
+    firebaseApp.database().ref(fbMatchedUserPath).set({
+      username: matchedUsername,
+    });
+  }
   
   // Search for pending matches
-  const fbPendingMatchesPath = `pendingMatches`;
   firebaseApp.database().ref(fbPendingMatchesPath)
     .once('value')
     .then((snapshot: Firebase.database.DataSnapshot) => {
       const pendingMatches: models.PendingMatches = snapshot.val();
       if (!pendingMatches) {
-        // No pending matches, put user in pending
-        const pendingId = firebaseApp.database().ref(fbPendingMatchesPath).push().key;
-        const pendingMatchForUserPath = `pendingMatches/${pendingId}`;
-        firebaseApp.database().ref(pendingMatchForUserPath)
-          .set({
-            username: name,
-            city,
-          });
-        const fbUserPendingIdPath = `users/${name}/pendingId`;
-        firebaseApp.database().ref(fbUserPendingIdPath).set(pendingId);
+        setToPendingMatch();
+      } else {
+        // Look for match
+        let matchedUsername = '';
+        Object.keys(pendingMatches).forEach((pendingId: string, index: number) => {
+          const pendingMatch: models.PendingMatch = pendingMatches[pendingId];
+          const pendingCity = pendingMatch.city;
+          const pendingUsername = pendingMatch.username;
+          if (city === pendingCity) {
+            matchedUsername = pendingUsername;
+          }
+        });
+        if (!matchedUsername) {
+          setToPendingMatch();
+        } else {
+          // Got a match!
+          setToConnectionMatch(matchedUsername);
+        }
       }
       res.json({
         ok: true,
