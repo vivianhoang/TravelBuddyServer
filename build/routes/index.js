@@ -39,6 +39,8 @@ router.post('/findMatch', (req, res) => {
                 username: name,
                 city,
             });
+            const fbUserPendingIdPath = `users/${name}/pendingId`;
+            firebaseApp.database().ref(fbUserPendingIdPath).set(pendingId);
         }
         res.json({
             ok: true,
