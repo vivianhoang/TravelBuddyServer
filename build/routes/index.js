@@ -54,6 +54,27 @@ router.post('/findMatch', (req, res) => {
         });
     });
 });
+router.post('/resetMatch', (req, res) => {
+    const { username } = req.body;
+    if (!username) {
+        res.json({
+            ok: false,
+            error: 'Missing name field for signin.',
+        });
+        return;
+    }
+    const fbNamePath = `users/${username}`;
+    firebaseApp.database().ref(fbNamePath)
+        .set({
+        username
+    })
+        .catch((error) => {
+        res.json({
+            ok: false,
+            error: 'Error reseting user.',
+        });
+    });
+});
 router.post('/signIn', (req, res) => {
     const { name } = req.body;
     if (!name) {
