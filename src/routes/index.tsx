@@ -69,10 +69,15 @@ router.post('/resetMatch', (req: Request, res: Response) => {
     return;
   }
 
-  const fbNamePath = `users/${username}`;
-  firebaseApp.database().ref(fbNamePath)
-    .set({
-      username
+  const fbUserPath = `users/${username}`;
+  firebaseApp.database().ref(fbUserPath)
+    .once('value', (snapshot: Firebase.database.DataSnapshot) => {
+      const user = snapshot.val();
+      firebaseApp.database().ref(fbUserPath).set({username});
+      if (user.pendingId) {
+        const fbPendingMatchesPath = `pendingMatches/${user.pendingId}`;
+        firebaseApp.database().ref(fbPendingMatchesPath).set(null);
+      }
     })
     .catch((error: any) => {
       res.json({
