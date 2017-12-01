@@ -2,6 +2,7 @@ var express = require('express');
 import { Request, Response } from 'express';
 var router = express.Router();
 import * as Firebase from 'firebase';
+import * as models from '../models';
 
 // Initialize Firebase
 const firebaseApp: Firebase.app.App = Firebase.initializeApp({
@@ -20,16 +21,40 @@ router.get('/', function(req: Request, res: Response) {
 
 router.post('/findMatch', (req: Request, res: Response) => {
   const { name, city } = req.body;
-  if (name) {
+  if (!name || !city) {
     res.json({
-      name,
-      ok: true,
+      error: 'Missing name or city.',
     });
     return;
   }
-  res.json({
-    error: 'Missing name field.',
-  });
+  
+  // Search for pending matches
+  const fbPendingMatchesPath = `pendingMatches`;
+  firebaseApp.database().ref(fbPendingMatchesPath)
+    .once('value')
+    .then((snapshot: Firebase.database.DataSnapshot) => {
+      const pendingMatches: models.PendingMatches = snapshot.val();
+      if (!pendingMatches) {
+        // No pending matches, put user in pending
+        const pendingId = firebaseApp.database().ref(fbPendingMatchesPath).push().key;
+        const pendingMatchForUserPath = `pendingMatches/${pendingId}`;
+        firebaseApp.database().ref(pendingMatchForUserPath)
+          .set({
+            username: name,
+            city,
+          });
+      }
+      res.json({
+        ok: true,
+        name,
+      });
+    })
+    .catch((error: any) => {
+      res.json({
+        ok: false,
+        error: 'Error finding match.',
+      });
+    });
 });
 
 router.post('/signIn', (req: Request, res: Response) => {
