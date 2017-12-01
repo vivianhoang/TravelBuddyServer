@@ -72,6 +72,9 @@ router.post('/resetMatch', (req, res) => {
             const fbPendingMatchesPath = `pendingMatches/${user.pendingId}`;
             firebaseApp.database().ref(fbPendingMatchesPath).set(null);
         }
+        res.json({
+            ok: true,
+        });
     })
         .catch((error) => {
         res.json({
