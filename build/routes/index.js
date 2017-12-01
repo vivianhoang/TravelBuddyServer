@@ -55,6 +55,7 @@ router.post('/findMatch', (req, res) => {
         firebaseApp.database().ref(fbUserConnectionIdPath).set(connectionId);
         const fbMatchedUserPath = `users/${matchedUsername}`;
         firebaseApp.database().ref(fbMatchedUserPath).set({
+            connectionId,
             username: matchedUsername,
         });
     }
