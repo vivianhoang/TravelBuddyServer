@@ -48,7 +48,9 @@ router.post('/signIn', (req: Request, res: Response) => {
       const user = snapshot.val();
       if (!user) {
         // User doesn't exist create user, set match status
-        firebaseApp.database().ref(fbNamePath).set(true);
+        firebaseApp.database().ref(fbNamePath).set({
+          username: name,
+        });
       }
       res.json({
         ok: true,
